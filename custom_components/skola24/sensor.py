@@ -5,6 +5,7 @@ Get data from skola24
 import logging
 import json
 import requests
+from icalendar import Calendar, Event
 from datetime import datetime, timedelta
 
 import voluptuous as vol
@@ -70,7 +71,7 @@ class entityRepresentation(Entity):
         self._localPath  = config.get(CONF_LOCALPATH)
 
         weekNow   = datetime.today().isocalendar()[1]
-        self.week = range(weekNow-2, weekNow+4)
+        self.week = range(weekNow-2, weekNow+6)
         self.year = datetime.today().year
 
         self.selection = None
@@ -233,6 +234,10 @@ class entityRepresentation(Entity):
           self.icsEvent(lesson, f)
         f.write('END:VCALENDAR')
         f.close()
+        # Concatenate all lessons to one large schoolday event
+        concatenated_data = self.concatenate_events(self._localPath)
+        with open(self._localPath, "wb") as output:
+            output.write(concatenated_data)
         return numberOfEvents
 
     def icsEvent(self, lesson, f):
@@ -251,6 +256,55 @@ class entityRepresentation(Entity):
             f.write('STATUS:CONFIRMED'+"\n")
             f.write('SEQUENCE:3'+"\n")
             f.write('END:VEVENT'+"\n")
+
+    def concatenate_events(self, ical_file_path):
+        # Load the iCalendar file
+        with open(ical_file_path, 'rb') as file:
+            cal = Calendar.from_ical(file.read())
+
+        # Create a dictionary to group events by date
+        events_by_date = {}
+        
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                start = component.get("DTSTART").dt
+                date_key = start.date()
+
+                if date_key not in events_by_date:
+                    events_by_date[date_key] = []
+
+                events_by_date[date_key].append(component)
+
+        # Create a new iCalendar instance for the concatenated events
+        concatenated_cal = Calendar()
+
+        # Iterate through the grouped events and create concatenated events
+        for date, event_list in events_by_date.items():
+            if len(event_list) > 1:
+                # Sort events by start time
+                event_list.sort(key=lambda x: x.get("DTSTART").dt)
+                
+                # Create a new event
+                concatenated_event = Event()
+
+                # Set the start and end times of the concatenated event
+                start_time = event_list[0].get("DTSTART").dt
+                end_time = event_list[-1].get("DTEND").dt
+                concatenated_event.add("DTSTART", start_time)
+                concatenated_event.add("DTEND", end_time)
+                concatenated_event.add("SUMMARY", "Skola")
+
+                description = "\n".join(event.get("DESCRIPTION") for event in event_list if event.get("DESCRIPTION"))
+                if description:
+                    concatenated_event.add("DESCRIPTION", description)
+
+                # Add the concatenated event to the new calendar
+                concatenated_cal.add_component(concatenated_event)
+            else:
+                # If only one event, add it as-is
+                concatenated_cal.add_component(event_list[0])
+
+        return concatenated_cal.to_ical()
 
     def getDateTime(self, dow, time, week):
         return datetime.strftime(
