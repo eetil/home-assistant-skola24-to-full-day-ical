@@ -1,6 +1,10 @@
 # skola24 to ics
 
+Based on [TekniskSupport/home-assistant-skola24-to-ical](https://github.com/TekniskSupport/home-assistant-skola24-to-ical)
+
 Creates a file: /config/schedule.ics
+
+This fork creates one event per schoolday that starts at the beginning of the first lesson and ends at the end of the last lesson.
 
 To be used with ical sensor integration (can be found in HACS):
 [https://github.com/tybritten/ical-sensor-homeassistant/](https://github.com/tybritten/ical-sensor-homeassistant/)
