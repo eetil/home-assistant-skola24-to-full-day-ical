@@ -1,5 +1,5 @@
 {
-  "name": "skola24",
+  "name": "skola24-fullday",
   "country": "SE",
   "domains": ["sensor"],
   "homeassistant": "2021.12.10"
