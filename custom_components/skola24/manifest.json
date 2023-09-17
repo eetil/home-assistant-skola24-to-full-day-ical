@@ -2,7 +2,7 @@
   "domain": "skola24-fullday",
   "name": "skola24-fullday",
   "after_dependencies": ["http", "rest"],
-  "codeowners": ["@iesus"],
+  "codeowners": ["@eetil"],
   "requirements": [],
   "issue_tracker": "https://github.com/eetil/home-assistant-skola24-to-full-day-ical/issues",
   "documentation": "https://github.com/eetil/home-assistant-skola24-to-full-day-ical/blob/master/readme.md",
