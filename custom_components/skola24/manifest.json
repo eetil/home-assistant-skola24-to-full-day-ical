@@ -1,11 +1,11 @@
 {
-  "domain": "skola24",
-  "name": "skola24",
+  "domain": "skola24-fullday",
+  "name": "skola24-fullday",
   "after_dependencies": ["http", "rest"],
   "codeowners": ["@iesus"],
   "requirements": [],
-  "issue_tracker": "https://github.com/TekniskSupport/home-assistant-skola24-to-ical/issues",
-  "documentation": "https://github.com/TekniskSupport/home-assistant-skola24-to-ical/blob/master/readme.md",
+  "issue_tracker": "https://github.com/eetil/home-assistant-skola24-to-full-day-ical/issues",
+  "documentation": "https://github.com/eetil/home-assistant-skola24-to-full-day-ical/blob/master/readme.md",
   "version": "v0.0.1",
   "iot_class": "cloud_polling"
 }
