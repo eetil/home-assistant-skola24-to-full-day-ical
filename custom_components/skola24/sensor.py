@@ -187,14 +187,27 @@ class entityRepresentation(Entity):
         self.errorCheck(response)
         return response.json()["data"]["key"]
 
+    async def getSchoolYearGuid(self, hass):
+        data={
+            "hostName":self._apiHost,
+            "checkSchoolYearsFeatures":"false"
+            }
+        response = await hass.async_add_executor_job(self.makeRequest,
+                "https://web.skola24.se/api/get/active/school/years",
+                data
+        )
+        self.errorCheck(response)
+        return response.json()["data"]["activeSchoolYears"][0]["guid"]
+
     async def getTimeTable(self, hass, renderKey,
-                           selection, selectionTypeId, guid):
+                           selection, selectionTypeId, guid, schoolYearGuid):
         lessons = []
         for w in self.week:
             data={
                 "renderKey":renderKey,
                 "host":self._apiHost,
                 "unitGuid":guid,
+                "schoolYear":schoolYearGuid,
                 "startDate":"null",
                 "endDate":"null",
                 "scheduleDay":0,
@@ -327,7 +340,8 @@ class entityRepresentation(Entity):
             selection = await self.getClass(hass, guid)
             selectionTypeId = 0
         renderKey = await self.getRenderKey(hass)
-        schedule = await self.getTimeTable(hass, renderKey, selection, selectionTypeId, guid)
+        schoolYearGuid = await self.getSchoolYearGuid(hass)
+        schedule = await self.getTimeTable(hass, renderKey, selection, selectionTypeId, guid, schoolYearGuid)
         numberOfEvents = self.icsLetter(schedule)
 
         self._state = datetime.now()
